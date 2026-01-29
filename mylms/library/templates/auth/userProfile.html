@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Styling for the refined oversight profile */
+    .profile-sidebar-card {
+        border: none;
+        border-radius: 4px; 
+        background: var(--nav-bg);
+        color: white;
+    }
+    .profile-info-card {
+        border: none;
+        border-radius: 4px;
+    }
+    /* Square Avatar Styling with "Quiet Luxury" accents */
+    .avatar-container {
+        position: relative;
+        padding: 4px;
+        background: var(--accent-color);
+        display: inline-block;
+        border-radius: 8px; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    .avatar-img {
+        width: 140px; 
+        height: 140px; 
+        object-fit: cover; 
+        border-radius: 4px;
+    }
+    .info-label {
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        color: #adb5bd;
+        letter-spacing: 1.2px;
+        display: block;
+        margin-bottom: 4px;
+    }
+    /* Structured Status Badges */
+    .status-badge {
+        background: rgba(255, 255, 255, 0.05);
+        border-left: 3px solid var(--accent-color);
+        padding: 10px;
+        transition: background 0.2s;
+        text-align: left;
+    }
+    .btn-square {
+        border-radius: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    /* Borrow Item Table Styling */
+    .borrow-table thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-4 py-5">
+    <div class="col-lg-4">
+        <div class="card profile-sidebar-card shadow text-center p-4">
+            <div class="avatar-container mb-3">
+                {% if user.userprofile.profile_pic %}
+                    <img src="{{ user.userprofile.profile_pic.url }}" class="avatar-img shadow-sm">
+                {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=10b981&color=fff&size=150&rounded=false" 
+                         class="avatar-img shadow-sm">
+                {% endif %}
+            </div>
+            
+            <h3 class="fw-bold mb-0">{{ user.username }}</h3>
+            <p class="text-info small mb-4">{{ user.email }}</p>
+
+            <div class="d-grid gap-2 mb-4">
+                <a href="{% url 'update_profile' %}" class="btn btn-primary btn-square">
+                    <i class="fas fa-user-edit me-2"></i>Update Info
+                </a>
+                <a href="{% url 'change_password' %}" class="btn btn-outline-light btn-square">
+                    <i class="fas fa-shield-alt me-2"></i>Security
+                </a>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-12">
+                    <div class="status-badge mb-2">
+                        <span class="info-label">Member Since</span>
+                        <span class="fw-bold small">{{ user.date_joined|date:"F Y" }}</span>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="status-badge">
+                        <span class="info-label">Account Status</span>
+                        <span class="fw-bold small text-success">
+                            <i class="fas fa-check-circle me-1"></i>VERIFIED {% if user.is_staff %}STAFF{% else %}MEMBER{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card profile-info-card shadow-sm mb-4 border-start border-4 border-primary">
+            <div class="card-body p-4 p-md-5">
+                <h4 class="fw-bold mb-4">Account Overview</h4>
+                
+                <div class="row mb-5">
+                    <div class="col-md-4 mb-3">
+                        <span class="info-label">Legal Name</span>
+                        <div class="fw-bold">{{ user.get_full_name|default:"Not Provided" }}</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <span class="info-label">Library ID</span>
+                        <div class="fw-bold text-primary font-monospace">#SL-{{ user.id|stringformat:"05d" }}</div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <span class="info-label">Activity</span>
+                        <div class="fw-bold small">Online {{ user.last_login|timesince }} ago</div>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <span class="info-label">Reader Biography</span>
+                    <div class="p-3 bg-light border-start border-3 mt-2">
+                        <p class="mb-0 text-muted">
+                            {% if user.userprofile.bio %}
+                                {{ user.userprofile.bio }}
+                            {% else %}
+                                No biography provided. Update your profile to share your reading interests.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% if not user.is_staff and not user.is_superuser %}
+                <div class="bg-dark text-white p-4 rounded-1 d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-book fa-2x text-accent me-3"></i>
+                        <div>
+                            <h6 class="mb-0 fw-bold">Active Borrows</h6>
+                            <p class="mb-0 small opacity-75">Track your reading materials here</p>
+                        </div>
+                    </div>
+                    <div class="h2 mb-0 fw-bold text-accent">{{ active_count }}</div>
+                </div>
+
+                {% if active_loans %}
+                <div class="table-responsive">
+                    <table class="table borrow-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Borrowed On</th>
+                                <th class="text-end">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loan in active_loans %}
+                            <tr>
+                                <td><span class="fw-bold text-dark">{{ loan.book.title }}</span></td>
+                                <td class="text-muted small">{{ loan.borrowed_date|date:"M d, Y" }}</td>
+                                <td class="text-end">
+                                    <span class="badge rounded-1 px-3 py-2 {% if today > loan.due_date %}bg-danger{% else %}bg-success{% endif %}">
+                                        {{ loan.due_date|date:"M d, Y" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-square px-4">
+                Back to Dashboard
+            </a>
+            <a href="{% url 'book_list' %}" class="btn btn-primary btn-square px-4">
+                Explore Books
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

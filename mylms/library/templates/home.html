@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero section styling for a professional first impression */
+    .hero-section {
+        background: linear-gradient(135deg, var(--nav-bg) 0%, #1a2a3a 100%);
+        border-radius: 20px;
+        color: white;
+    }
+    
+    /* Interactive cards for the Staff Command Center and User Features */
+    .feature-card {
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px;
+        background: #ffffff;
+    }
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    
+    /* Icon boxes to match the professional UI architecture */
+    .icon-box {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Thematic colors for staff oversight sections */
+    .bg-loan { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+    .bg-user { background: rgba(13, 202, 240, 0.1); color: #0dcaf0; }
+    .bg-catalogue { background: rgba(13, 110, 253, 0.1); color: #0d6efd; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-11">
+        
+        <div class="card hero-section mb-5 border-0 shadow-lg overflow-hidden">
+            <div class="row g-0">
+                <div class="col-md-8 p-5">
+                    <h1 class="display-4 fw-bold mb-3">{{ message }}</h1>
+                    <p class="lead opacity-75 mb-4">Your digital gateway to knowledge and discovery. Explore our vast collection of literature and manage your reading journey with ease.</p>
+                    <a href="{% url 'book_list' %}" class="btn btn-info btn-lg px-4 rounded-pill fw-bold text-white">
+                        <i class="fas fa-search me-2"></i>Explore Catalogue
+                    </a>
+                </div>
+                <div class="col-md-4 d-none d-md-flex align-items-center justify-content-center bg-white bg-opacity-10">
+                    <i class="fas fa-book-reader fa-7x text-white opacity-25"></i>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated and user.is_staff %}
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card h-100 feature-card shadow-sm p-4">
+                    <div class="icon-box bg-catalogue">
+                        <i class="fas fa-plus-circle fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Maintain Catalogue</h5>
+                    <p class="text-muted small">Librarian Tool: Add new resources, edit metadata, and manage assets in the database.</p>
+                    <a href="{% url 'book_create' %}" class="btn btn-outline-primary mt-auto rounded-pill py-2">Add New Book</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 feature-card shadow-sm p-4">
+                    <div class="icon-box bg-loan">
+                        <i class="fas fa-tasks fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Loan & Review Admin</h5>
+                    <p class="text-muted small">Monitor active loans, track overdue items with $1/day fines, and moderate community reviews.</p>
+                    <a href="{% url 'staff_dashboard' %}" class="btn btn-outline-warning mt-auto rounded-pill py-2">Open Dashboard</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 feature-card shadow-sm p-4">
+                    <div class="icon-box bg-user">
+                        <i class="fas fa-users-cog fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">User Oversight</h5>
+                    <p class="text-muted small">Access a dedicated member management file to oversee account status and activity logs.</p>
+                    <a href="{% url 'user_management' %}" class="btn btn-outline-info mt-auto rounded-pill py-2">Manage Members</a>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card h-100 feature-card shadow-sm p-4">
+                    <div class="icon-box bg-success bg-opacity-10 text-success">
+                        <i class="fas fa-bookmark fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">My Reading Room</h5>
+                    <p class="text-muted small">Access your personal profile to view your current borrows and update your reader bio.</p>
+                    <a href="{% url 'userProfile' %}" class="btn btn-outline-success mt-auto rounded-pill py-2">Go to My Profile</a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card h-100 feature-card shadow-sm p-4">
+                    <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                    <h5 class="fw-bold">Latest Additions</h5>
+                    <p class="text-muted small">Explore the newest volumes added to our collection this week by our library team.</p>
+                    <a href="{% url 'book_list' %}" class="btn btn-outline-primary mt-auto rounded-pill py-2">See What's New</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm bg-light rounded-4">
+            <div class="card-body p-4 p-md-5 text-center">
+                <h3 class="fw-bold mb-3">About Silent Library</h3>
+                <p class="text-secondary mx-auto mb-0" style="max-width: 800px;">
+                    As part of the Infinity IT Solutions (IITS) intern team, we have developed this platform to streamline 
+                    resource management and provide a secure, intuitive experience for all readers.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

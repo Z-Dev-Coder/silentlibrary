@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-card { border: none; border-radius: 20px; }
+    .profile-header { background-color: var(--nav-bg) !important; border-radius: 20px 20px 0 0; }
+    .current-pic-wrapper {
+        position: relative;
+        display: inline-block;
+        border: 4px solid var(--accent-color);
+        padding: 5px;
+        border-radius: 50%;
+    }
+    .form-section-title {
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        color: var(--nav-bg);
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-lg-10">
+        <div class="card shadow-lg profile-card">
+            <div class="card-header profile-header text-white p-4">
+                <h3 class="mb-0"><i class="fas fa-user-cog me-2 text-info"></i> Account Settings</h3>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-5">
+                        <div class="col-md-6">
+                            <h5 class="form-section-title"><i class="fas fa-id-card me-2"></i>Personal Information</h5>
+                            
+                            <div class="mb-3">
+                                <label for="id_username" class="form-label fw-bold small">Username</label>
+                                <input type="text" name="username" class="form-control bg-light" id="id_username" 
+                                       value="{{ user.username }}" required>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-6 mb-3">
+                                    <label for="id_first_name" class="form-label fw-bold small">First Name</label>
+                                    <input type="text" name="first_name" class="form-control" id="id_first_name" 
+                                           value="{{ user.first_name }}">
+                                </div>
+                                <div class="col-6 mb-3">
+                                    <label for="id_last_name" class="form-label fw-bold small">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control" id="id_last_name" 
+                                           value="{{ user.last_name }}">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_email" class="form-label fw-bold small">Email Address</label>
+                                <input type="email" name="email" class="form-control" id="id_email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+
+                            <h5 class="form-section-title mt-4"><i class="fas fa-shield-alt me-2"></i>Security</h5>
+                            <div class="alert alert-warning py-2 small">
+                                <i class="fas fa-key me-1"></i> Passwords are managed separately. 
+                                <a href="{% url 'change_password' %}" class="fw-bold">Change here &raquo;</a>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="form-section-title"><i class="fas fa-camera me-2"></i>Public Profile</h5>
+                            
+                            <div class="text-center mb-4">
+                                <div class="current-pic-wrapper">
+                                    {% if user.userprofile.profile_pic %}
+                                        <img src="{{ user.userprofile.profile_pic.url }}" class="rounded-circle shadow-sm"
+                                             style="width: 120px; height: 120px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=0D1B2A&color=fff" 
+                                             class="rounded-circle shadow-sm" style="width: 120px; height: 120px;">
+                                    {% endif %}
+                                </div>
+                                <div class="mt-3">
+                                    <label for="id_profile_pic" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-upload me-1"></i> Change Photo
+                                    </label>
+                                    <input type="file" name="profile_pic" class="d-none" id="id_profile_pic" accept="image/*">
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="id_bio" class="form-label fw-bold small">About You</label>
+                                <textarea name="bio" class="form-control" id="id_bio" rows="4" 
+                                          placeholder="A bit about your reading interests...">{{ user.userprofile.bio }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-top d-flex justify-content-between align-items-center">
+                        <a href="{% url 'userProfile' %}" class="text-muted text-decoration-none small">
+                            <i class="fas fa-chevron-left me-1"></i> Back to Profile
+                        </a>
+                        <div>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow">
+                                Update Account
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

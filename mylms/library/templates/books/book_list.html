@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Books - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Search Bar - Structured Design */
+    .search-container {
+        background: #ffffff;
+        padding: 1.5rem;
+        border-radius: 4px; /* Square theme */
+        border: 1px solid #eee;
+        margin-bottom: 3rem;
+    }
+    .search-input {
+        border-radius: 4px 0 0 4px !important;
+        border: 2px solid #e9ecef;
+    }
+    .search-btn {
+        border-radius: 0 4px 4px 0 !important;
+        background-color: var(--nav-bg);
+        border: none;
+    }
+
+    /* Book Card - Height & Image Fix */
+    .book-card {
+        border: none;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        background: #fff;
+        border: 1px solid #f0f0f0;
+    }
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+    }
+    
+    /* Ensuring the full picture displays in a proper book ratio */
+    .card-img-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 2 / 3; /* Standard book dimensions */
+        overflow: hidden;
+        background: #f8f9fa;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    .card-img-top {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Shows entire image without cropping */
+        padding: 10px; /* Gives space so the edges aren't touching the card */
+        transition: transform 0.5s ease;
+    }
+
+    .category-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--accent-color);
+        color: white;
+        padding: 2px 8px;
+        border-radius: 2px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        z-index: 2;
+    }
+
+    .btn-square {
+        border-radius: 2px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-dot {
+        height: 8px;
+        width: 8px;
+        border-radius: 0; /* Square dots for consistency */
+        display: inline-block;
+        margin-right: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold text-dark"><i class="fas fa-book-open text-primary me-2"></i> Library Collection</h2>
+        <p class="text-muted small">Total Resources: <span class="fw-bold text-dark">{{ total_books }}</span></p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'book_create' %}" class="btn btn-success btn-square px-4 shadow-sm">
+                <i class="fas fa-plus me-2"></i> Add Entry
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="search-container shadow-sm">
+    <form method="GET" action="{% url 'search_books' %}">
+        <div class="input-group">
+            <input type="text" name="search" class="form-control search-input" 
+                   placeholder="Search by title, author, or ISBN..."
+                   value="{{ search_query }}" required>
+            <button class="btn btn-primary search-btn px-4" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+{% if books %}
+<div class="row g-4">
+    {% for book in books %}
+    <div class="col-xl-2 col-lg-3 col-md-4 col-6"> <div class="card h-100 book-card shadow-sm">
+            <div class="card-img-container">
+                <span class="category-badge">{{ book.category }}</span>
+                {% if book.cover_pic %}
+                    <img src="{{ book.cover_pic.url }}" class="card-img-top" alt="{{ book.title }}">
+                {% else %}
+                    <div class="h-100 w-100 d-flex align-items-center justify-content-center">
+                        <i class="fas fa-image fa-3x text-light"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card-body p-2">
+                <h6 class="fw-bold text-truncate mb-0" style="font-size: 0.9rem;">{{ book.title }}</h6>
+                <p class="text-muted extra-small mb-2" style="font-size: 0.75rem;">{{ book.author|truncatechars:20 }}</p>
+                
+                <div class="small d-flex align-items-center mb-2">
+                    {% if book.available_copies > 0 %}
+                        <span class="status-dot bg-success"></span> <span class="text-success" style="font-size: 0.7rem;">Available</span>
+                    {% else %}
+                        <span class="status-dot bg-danger"></span> <span class="text-danger" style="font-size: 0.7rem;">Borrowed</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card-footer bg-transparent border-0 p-2">
+                <div class="d-grid">
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-outline-dark btn-square btn-sm">
+                        View Details
+                    </a>
+                </div>
+                
+                {% if user.is_staff %}
+                <div class="d-flex gap-1 mt-1">
+                    <a href="{% url 'book_update' book.pk %}" class="btn btn-light btn-sm flex-grow-1 border">
+                        <i class="fas fa-edit text-warning"></i>
+                    </a>
+                    <a href="{% url 'book_delete' book.pk %}" class="btn btn-light btn-sm flex-grow-1 border">
+                        <i class="fas fa-trash text-danger"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="py-5 text-center bg-light rounded shadow-sm">
+    <i class="fas fa-ghost fa-3x text-muted mb-3 opacity-50"></i>
+    <h5 class="text-muted">No volumes found in this section.</h5>
+    <a href="{% url 'book_list' %}" class="btn btn-link text-decoration-none mt-2">Reset Search</a>
+</div>
+{% endif %}
+{% endblock %}

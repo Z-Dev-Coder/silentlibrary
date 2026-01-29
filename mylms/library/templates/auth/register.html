@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if is_staff_crud %}
+        {% if is_edit_mode %}Edit Member{% else %}Add New Member{% endif %}
+    {% else %}
+        Register
+    {% endif %} - Silent Library
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Error Styling */
+    .is-invalid {
+        border-color: #dc3545 !important;
+        background-color: #fff8f8 !important;
+        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    }
+
+    .error-feedback {
+        font-weight: 600;
+        display: block;
+        padding: 6px 12px;
+        background-color: #fceaea;
+        border-radius: 4px;
+        border-left: 4px solid #dc3545;
+        margin-top: 8px;
+        color: #b02a37;
+        font-size: 0.875rem;
+    }
+
+    /* Shake animation for invalid fields */
+    @keyframes errorShake {
+        0%, 100% { transform: translateX(0); }
+        20%, 60% { transform: translateX(-6px); }
+        40%, 80% { transform: translateX(6px); }
+    }
+
+    .shake-on-error {
+        animation: errorShake 0.3s ease-in-out;
+    }
+
+    .card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s ease;
+    }
+
+    .card-header {
+        border-radius: 15px 15px 0 0 !important;
+    }
+
+    /* Staff Mode Accent */
+    .staff-mode-border {
+        border-top: 5px solid #0dcaf0 !important;
+    }
+</style>
+
+<div class="row justify-content-center py-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow-lg {% if is_staff_crud %}staff-mode-border{% endif %}">
+            <div class="card-header {% if is_staff_crud %}bg-info{% else %}bg-success{% endif %} text-white py-3">
+                <h3 class="mb-0 text-center">
+                    {% if is_staff_crud %}
+                        <i class="fas fa-user-shield me-2"></i> {% if is_edit_mode %}Modify Member{% else %}Create Account{% endif %}
+                    {% else %}
+                        <i class="fas fa-user-plus me-2"></i> Join Silent Library
+                    {% endif %}
+                </h3>
+            </div>
+            
+            <div class="card-body p-4">
+                {% if is_staff_crud %}
+                <div class="alert alert-info py-2 small border-0 shadow-sm mb-4">
+                    <i class="fas fa-info-circle me-1"></i> <strong>Staff Mode:</strong> 
+                    {% if is_edit_mode %}Updating member details.{% else %}Manually enrolling a new reader.{% endif %}
+                </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                        <input type="text" name="username" 
+                               class="form-control {% if form.username.errors %}is-invalid shake-on-error{% endif %}" 
+                               id="id_username" placeholder="Enter username" required
+                               value="{{ form.username.value|default:'' }}">
+                        {% if form.username.errors %}
+                            <div class="error-feedback">
+                                <i class="fas fa-exclamation-circle me-1"></i> {{ form.username.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" name="email" 
+                               class="form-control {% if form.email.errors %}is-invalid shake-on-error{% endif %}" 
+                               id="id_email" placeholder="name@example.com" required
+                               value="{{ form.email.value|default:'' }}">
+                        {% if form.email.errors %}
+                            <div class="error-feedback">
+                                <i class="fas fa-envelope me-1"></i> {{ form.email.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_first_name" class="form-label fw-bold">First Name</label>
+                            <input type="text" name="first_name" class="form-control" id="id_first_name" 
+                                   placeholder="First Name" value="{{ form.first_name.value|default:'' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_last_name" class="form-label fw-bold">Last Name</label>
+                            <input type="text" name="last_name" class="form-control" id="id_last_name" 
+                                   placeholder="Last Name" value="{{ form.last_name.value|default:'' }}">
+                        </div>
+                    </div>
+
+                    {% if not is_edit_mode %}
+                    <div class="mb-3">
+                        <label for="id_password1" class="form-label fw-bold">Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password1" 
+                               class="form-control {% if form.password1.errors %}is-invalid shake-on-error{% endif %}" 
+                               id="id_password1" placeholder="Create a strong password" required>
+                        {% if form.password1.errors %}
+                            <div class="error-feedback">
+                                <i class="fas fa-lock me-1"></i> {{ form.password1.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_password2" class="form-label fw-bold">Confirm Password <span class="text-danger">*</span></label>
+                        <input type="password" name="password2" 
+                               class="form-control {% if form.password2.errors %}is-invalid shake-on-error{% endif %}" 
+                               id="id_password2" placeholder="Repeat your password" required>
+                        {% if form.password2.errors %}
+                            <div class="error-feedback">
+                                <i class="fas fa-check-double me-1"></i> {{ form.password2.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-secondary py-2 small mb-4">
+                        <i class="fas fa-lock me-1"></i> Password editing is restricted for security.
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn {% if is_staff_crud %}btn-info text-white{% else %}btn-success{% endif %} btn-lg shadow-sm">
+                            {% if is_edit_mode %}
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            {% elif is_staff_crud %}
+                                <i class="fas fa-user-plus me-2"></i> Enroll Member
+                            {% else %}
+                                <i class="fas fa-user-plus me-2"></i> Join Silent Library
+                            {% endif %}
+                        </button>
+                        
+                        {% if is_staff_crud %}
+                            <a href="{% url 'user_management' %}" class="btn btn-light border rounded-3">Cancel and Return</a>
+                        {% endif %}
+                    </div>
+                </form>
+
+                {% if not is_staff_crud %}
+                <div class="text-center mt-4">
+                    <p class="mb-0 text-muted">Already a member? 
+                        <a href="{% url 'user_login' %}" class="text-success fw-bold text-decoration-none">
+                             Login here
+                        </a>
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        border: none;
+        border-top: 5px solid var(--accent-color);
+    }
+    .form-header {
+        background-color: var(--nav-bg) !important;
+        color: white;
+        padding: 1.5rem;
+    }
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(0, 173, 181, 0.1);
+    }
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #6c757d;
+    }
+    .current-cover-preview {
+        border: 2px solid #e9ecef;
+        padding: 5px;
+        background: white;
+        border-radius: 8px;
+        transition: transform 0.2s;
+    }
+    .current-cover-preview:hover {
+        transform: scale(1.02);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9 col-md-11">
+        <div class="card shadow-lg form-card">
+            <div class="card-header form-header d-flex align-items-center">
+                <i class="fas fa-book-medical fa-2x me-3 text-info"></i>
+                <h3 class="mb-0 fw-bold">{{ title }}</h3>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h5 class="text-accent fw-bold mb-4 border-bottom pb-2">Basic Information</h5>
+                            
+                            <div class="mb-4">
+                                <label for="id_title" class="form-label">Book Title <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                    <input type="text" name="title" class="form-control {% if form.title.errors %}is-invalid{% endif %}" 
+                                           id="id_title" placeholder="Enter book title" required
+                                           value="{{ form.title.value|default:'' }}">
+                                </div>
+                                {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_author" class="form-label">Author <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user-feather"></i></span>
+                                    <input type="text" name="author" class="form-control {% if form.author.errors %}is-invalid{% endif %}" 
+                                           id="id_author" placeholder="Enter author name" required
+                                           value="{{ form.author.value|default:'' }}">
+                                </div>
+                                {% if form.author.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.author.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="id_description" class="form-label">Description <span class="text-danger">*</span></label>
+                                <textarea name="description" class="form-control {% if form.description.errors %}is-invalid{% endif %}" 
+                                          id="id_description" rows="6" placeholder="Enter a brief synopsis..." 
+                                          required>{{ form.description.value|default:'' }}</textarea>
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.description.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <h5 class="text-accent fw-bold mb-4 border-bottom pb-2">Technical Details</h5>
+
+                            <div class="row g-3">
+                                <div class="col-12 mb-3">
+                                    <label for="id_isbn" class="form-label">ISBN <span class="text-danger">*</span></label>
+                                    <input type="text" name="isbn" class="form-control {% if form.isbn.errors %}is-invalid{% endif %}" 
+                                           id="id_isbn" placeholder="13-digit ISBN" required maxlength="13"
+                                           value="{{ form.isbn.value|default:'' }}">
+                                    {% if form.isbn.errors %}
+                                        <div class="invalid-feedback d-block">{{ form.isbn.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-12 mb-3">
+                                    <label for="id_category" class="form-label">Category <span class="text-danger">*</span></label>
+                                    <input type="text" name="category" class="form-control {% if form.category.errors %}is-invalid{% endif %}" 
+                                           id="id_category" placeholder="Fiction, Science, etc." required
+                                           value="{{ form.category.value|default:'' }}">
+                                </div>
+
+                                <div class="col-sm-6 mb-3">
+                                    <label for="id_published_date" class="form-label">Published</label>
+                                    <input type="date" name="published_date" class="form-control" id="id_published_date"
+                                           value="{{ form.published_date.value|date:'Y-m-d'|default:'' }}">
+                                </div>
+                                <div class="col-sm-6 mb-3">
+                                    <label for="id_available_copies" class="form-label">Copies</label>
+                                    <input type="number" name="available_copies" class="form-control" id="id_available_copies"
+                                           min="0" value="{{ form.available_copies.value|default:'1' }}">
+                                </div>
+                            </div>
+
+                            <div class="mt-4 p-3 bg-light rounded shadow-sm">
+                                <label class="form-label d-block mb-3">Cover Imagery</label>
+                                
+                                {% if book.cover_pic %}
+                                <div class="text-center mb-3">
+                                    <img src="{{ book.cover_pic.url }}" alt="Current Cover" 
+                                         class="current-cover-preview img-fluid" style="max-height: 120px;">
+                                    <p class="small text-muted mt-1">Current Cover</p>
+                                </div>
+                                {% endif %}
+
+                                <div class="mb-2">
+                                    <input type="file" name="cover_pic" class="form-control form-control-sm" 
+                                           id="id_cover_pic" accept="image/*">
+                                </div>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">
+                                    <i class="fas fa-info-circle"></i> Max 5MB (JPG, PNG)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-3 mt-5 pt-4 border-top">
+                        <a href="{% url 'book_list' %}" class="btn btn-light px-4 border">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary px-5">
+                            <i class="fas fa-save me-2"></i> Save Book
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

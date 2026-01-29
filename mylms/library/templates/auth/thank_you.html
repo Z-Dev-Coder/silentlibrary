@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    .welcome-header {
+        background-color: var(--nav-bg) !important;
+        padding: 3rem 2rem;
+    }
+    .status-icon-glow {
+        font-size: 4rem;
+        color: var(--accent-color);
+        text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        margin-bottom: 1rem;
+    }
+    .step-box {
+        background-color: #f8f9fa;
+        border-radius: 15px;
+        transition: transform 0.2s ease;
+    }
+    .step-box:hover {
+        transform: translateY(-5px);
+    }
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background: var(--nav-bg);
+        color: white;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-5">
+    <div class="col-lg-8">
+        <div class="card shadow-lg success-card">
+            <div class="welcome-header text-white text-center">
+                <div class="status-icon-glow">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1 class="fw-bold">Registration Successful!</h1>
+                <p class="lead text-info mb-0">Welcome to the Silent Library community.</p>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+                <div class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-5">
+                    <i class="fas fa-envelope-open-text fa-2x me-3"></i>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Verification Email Sent</h6>
+                        <p class="small mb-0">We've sent a welcome link to your registered Gmail address. Please check your inbox.</p>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-4 text-center">Your Journey Starts Here</h5>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <div class="step-box p-4 text-center h-100 border">
+                            <i class="fas fa-sign-in-alt text-primary mb-3 fa-2x"></i>
+                            <h6 class="fw-bold">Access</h6>
+                            <p class="small text-muted mb-0">Log in to activate your digital library card.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-box p-4 text-center h-100 border">
+                            <i class="fas fa-id-card text-success mb-3 fa-2x"></i>
+                            <h6 class="fw-bold">Profile</h6>
+                            <p class="small text-muted mb-0">Add a photo and bio to personalize your space.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="step-box p-4 text-center h-100 border">
+                            <i class="fas fa-search text-info mb-3 fa-2x"></i>
+                            <h6 class="fw-bold">Explore</h6>
+                            <p class="small text-muted mb-0">Discover thousands of titles in our catalog.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-3 col-md-6 mx-auto">
+                    <a href="{% url 'user_login' %}" class="btn btn-primary btn-lg rounded-pill fw-bold shadow">
+                        Login to Your Account
+                    </a>
+                    <div class="text-center">
+                        <a href="{% url 'home' %}" class="text-muted small text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Return to Homepage
+                        </a>
+                    </div>
+                </div>
+
+                <hr class="my-5">
+
+                <div class="text-center text-muted">
+                    <p class="small mb-0">
+                        Didn't get the email? <a href="#" class="text-primary fw-bold">Resend Link</a> or 
+                        <a href="{% url 'register' %}" class="text-secondary">Try Again</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

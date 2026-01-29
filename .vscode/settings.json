@@ -1,0 +1,6 @@
+{
+  "python.analysis.autoIndent": false,
+  "python.analysis.autoSplitStrings": false,
+  "python.analysis.indexing": false,
+  "python.analysis.inlayHints.pytestParameters": true
+}

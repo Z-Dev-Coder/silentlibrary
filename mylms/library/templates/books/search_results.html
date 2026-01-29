@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results - Silent Library{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Consistent Search Bar Styling */
+    .search-result-container {
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border-top: 4px solid var(--accent-color);
+    }
+    .search-input {
+        border-radius: 30px 0 0 30px !important;
+        padding-left: 25px;
+        border: 2px solid #e9ecef;
+    }
+    .btn-search-main {
+        background-color: var(--nav-bg);
+        color: white;
+        border: none;
+        padding: 0 25px;
+    }
+    .btn-clear-search {
+        border-radius: 0 30px 30px 0 !important;
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border: 2px solid #e9ecef;
+        border-left: none;
+    }
+    .btn-search-main:hover {
+        background-color: var(--accent-color);
+        color: white;
+    }
+
+    /* Card Refinements */
+    .book-card {
+        border: none;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+    .book-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+    }
+    .category-tag {
+        font-size: 0.65rem;
+        background: rgba(0, 173, 181, 0.1);
+        color: var(--accent-color);
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="fw-bold"><i class="fas fa-search text-info me-2"></i> Search Results</h2>
+        <p class="text-muted">
+            {% if search_query %}
+                Showing results for <span class="text-primary fw-bold">"{{ search_query }}"</span>
+            {% else %}
+                <span class="badge bg-secondary">Showing All Books</span>
+            {% endif %}
+        </p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <h5 class="mb-0 text-muted">
+            Found <span class="text-dark fw-bold">{{ total_results }}</span> {% if total_results == 1 %}Book{% else %}Books{% endif %}
+        </h5>
+    </div>
+</div>
+
+<div class="search-result-container mb-5">
+    <div class="row">
+        <div class="col-lg-10 offset-lg-1">
+            <form method="GET" action="{% url 'search_books' %}">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="search" class="form-control search-input" 
+                           placeholder="Search title, author, category, or ISBN..."
+                           value="{{ search_query }}" required>
+                    <button class="btn btn-search-main" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <a href="{% url 'book_list' %}" class="btn btn-clear-search d-flex align-items-center" title="Clear Search">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if books %}
+<div class="row g-4">
+    {% for book in books %}
+    <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="card h-100 shadow-sm book-card">
+            <div class="position-relative overflow-hidden" style="border-radius: 12px 12px 0 0;">
+                {% if book.cover_pic %}
+                    <img src="{{ book.cover_pic.url }}" class="card-img-top" alt="{{ book.title }}"
+                         style="height: 240px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                         style="height: 240px;">
+                        <i class="fas fa-book fa-3x text-muted opacity-25"></i>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card-body p-3">
+                <div class="mb-2">
+                    <span class="category-tag">{{ book.category }}</span>
+                </div>
+                <h6 class="fw-bold text-dark text-truncate mb-1" title="{{ book.title }}">{{ book.title }}</h6>
+                <p class="text-muted small mb-3">by {{ book.author|truncatechars:20 }}</p>
+                
+                <div class="d-flex justify-content-between align-items-center mt-auto">
+                    <small class="text-muted"><i class="fas fa-copy me-1"></i> {{ book.available_copies }} left</small>
+                    <a href="{% url 'book_detail' book.pk %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        Details
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card border-0 shadow-sm py-5">
+    <div class="card-body text-center">
+        <div class="mb-4">
+            <span class="rounded-circle bg-light d-inline-block p-4">
+                <i class="fas fa-search-minus fa-4x text-muted opacity-50"></i>
+            </span>
+        </div>
+        <h4 class="fw-bold text-dark">No matches found</h4>
+        <p class="text-muted mb-4">We couldn't find any books matching "{{ search_query }}". <br>Check your spelling or try more general keywords.</p>
+        <a href="{% url 'book_list' %}" class="btn btn-primary rounded-pill px-4">
+            <i class="fas fa-arrow-left me-2"></i> View All Books
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

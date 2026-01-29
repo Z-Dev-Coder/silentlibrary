@@ -1,0 +1,9 @@
+# Local environment variables
+.env
+
+# Database
+db_library
+*.mysql
+
+# Media files
+media/
