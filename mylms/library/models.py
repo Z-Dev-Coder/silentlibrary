@@ -25,7 +25,7 @@ class Book(models.Model):
     )
     description = models.TextField(help_text="Enter book description")
     category = models.CharField(max_length=50, help_text="Enter book category")
-    published_date = models.DateField(help_text="Enter publication date")
+    published_date = models.DateField(help_text="Enter publication date",blank=True,)
     available_copies = models.IntegerField(
         default=1,
         help_text="Enter number of available copies"
@@ -114,4 +114,13 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'userprofile'):
         instance.userprofile.save()
+
+class Waitlist(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='waitlist')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('book', 'user') # Prevents joining the same list twice
+        ordering = ['added_at']
 

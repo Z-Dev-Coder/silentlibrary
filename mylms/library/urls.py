@@ -15,6 +15,12 @@ urlpatterns = [
     path('thank-you/', views.thank_you, name='thank_you'),
     path('login/', views.user_login, name='user_login'),
     path('logout/', views.Logout, name='logout'),
+
+    # --- BOOK CRUD ---
+    path('books/create/', views.book_create, name='book_create'), 
+    path('books/<int:pk>/edit/', views.book_update, name='book_update'),  
+    path('books/<int:pk>/delete/', views.book_delete, name='book_delete'),  
+    path('books/<int:pk>/borrow/', views.borrow_book, name='borrow_book'),
     
     # --- PROFILE & SECURITY ---
     path('profile/', views.userProfile, name='userProfile'),
@@ -37,11 +43,7 @@ urlpatterns = [
     path('staff/users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
     path('staff/users/toggle/<int:user_id>/', views.toggle_staff_status, name='toggle_staff_status'),
     
-    # --- BOOK CRUD ---
-    path('books/create/', views.book_create, name='book_create'), 
-    path('books/<int:pk>/edit/', views.book_update, name='book_update'),  
-    path('books/<int:pk>/delete/', views.book_delete, name='book_delete'),  
-    path('books/<int:pk>/borrow/', views.borrow_book, name='borrow_book'),
+    path('book/<int:book_id>/join-waitlist/', views.join_waitlist, name='join_waitlist'),
 ]
 
 if settings.DEBUG:

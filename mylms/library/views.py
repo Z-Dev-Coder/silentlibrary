@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
-from .models import Book, UserProfile, Review, Loan
+from .models import Book, UserProfile, Review, Loan,Waitlist
 from .forms import BookForm, RegisterForm, ChangePasswordForm,ReviewForm
 from datetime import date
 
@@ -781,3 +781,19 @@ def borrow_book(request, pk):
         messages.error(request, "This volume is currently out of stock.")
         
     return redirect('book_detail', pk=pk)
+
+
+@login_required
+def join_waitlist(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    
+    if book.available_copies == 0:
+        obj, created = Waitlist.objects.get_or_create(book=book, user=request.user)
+        if created:
+            messages.success(request, f"You've been added to the waitlist for {book.title}.")
+        else:
+            messages.info(request, "You are already on the waitlist.")
+    else:
+        messages.warning(request, "This book is available. You can borrow it directly!")
+        
+    return redirect('book_detail', pk=book_id)

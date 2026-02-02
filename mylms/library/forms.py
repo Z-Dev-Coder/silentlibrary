@@ -98,7 +98,6 @@ class BookForm(forms.ModelForm):
 class RegisterForm(forms.ModelForm):
     """
     User registration form with password confirmation
-    As per Assignment 02 sample requirements
     """
     password1 = forms.CharField(
         label='Password',
@@ -170,7 +169,6 @@ class ChangePasswordForm(forms.Form):
     """
     Password change form - requires old password verification
     Sends confirmation email after successful change
-    As per Assignment 02 requirements
     """
     old_password = forms.CharField(
         label='Current Password',
